@@ -1,0 +1,39 @@
+name: Build & Release .NET Framework WinForms
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore Bitcoin-Cracker.sln
+
+      - name: Build with MSBuild
+        run: msbuild Bitcoin-Cracker.sln /p:Configuration=Release
+
+      - name: Create ZIP package
+        run: |
+          mkdir output
+          Copy-Item "bin\Release\*" -Destination output -Recurse
+          Compress-Archive -Path output\* -DestinationPath Bitcoin-Cracker.zip
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: Bitcoin-Cracker.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
