@@ -1,4 +1,4 @@
-name: Build & Release .NET Framework WinForms
+name: Build & Release .NET Framework
 
 permissions:
   contents: write
